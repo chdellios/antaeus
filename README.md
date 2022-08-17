@@ -86,3 +86,14 @@ The code given is structured as follows. Feel free however to modify the structu
 * [Sqlite3](https://sqlite.org/index.html) - Database storage engine
 
 Happy hacking 😁!
+
+## Progress
+
+## Wednesday 17th August
+
+1. Requirements analysis.
+2. Project build.
+3. Docker image build.
+4. Application execution and project structure examination.
+5. Endpoints testing via Postman.
+6. Simple stress test
