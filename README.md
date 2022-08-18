@@ -97,3 +97,15 @@ Happy hacking 😁!
 4. Application execution and project structure examination.
 5. Endpoints testing via Postman.
 6. Simple stress test
+
+## Thursday 18th August
+
+1. Creating implementation of a simple billing service.(Just a simple change of status Pending->Paid)
+2. Writing down some possible error that might occur.
+3. Exposing a rest endpoint in order to execute the service.
+4. Spending time studying about kotlin in general and some features that could be implemented to the service.
+
+**Next Steps:**
+1. Developing the billing service completely.
+2. Error handling (double charge, network error etc)
+3. Code optimization (split into methods, refactoring)
