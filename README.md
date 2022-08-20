@@ -109,3 +109,16 @@ Happy hacking 😁!
 1. Developing the billing service completely.
 2. Error handling (double charge, network error etc)
 3. Code optimization (split into methods, refactoring)
+
+## Saturday 20th August
+1. Better implementation of Billing service.
+* Fetching and charging only pending invoices.
+* Failure stimulation
+
+2. Changed API paths for the billing process in order to fetch only the pending invoices
+* each call is idempotent, meaning no invoice is going to be charged twice.
+
+**Next Steps:**
+* Check if retry function works correctly on network failures
+* Implement proper testing.
+* Create dockerfile configuration and bash scripts to run a docker cron the first day of the month(may use docker-compose)
