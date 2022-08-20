@@ -46,6 +46,14 @@ class AntaeusDal(private val db: Database) {
         return fetchInvoice(id)
     }
 
+    fun fetchPendingInvoices(): List<Invoice> {
+        return transaction(db) {
+            InvoiceTable
+                    .select { InvoiceTable.status.eq(InvoiceStatus.PENDING.toString()) }
+                    .map { it.toInvoice() }
+        }
+    }
+
     fun updateInvoiceStatus(id: Int, status: InvoiceStatus): Int {
         return transaction(db) {
             InvoiceTable

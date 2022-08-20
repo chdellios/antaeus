@@ -71,7 +71,7 @@ class AntaeusRest(
                     path("charging") {
                         // URL: /rest/v1/charging
                         get {
-                            val invoices = invoiceService.fetchAll()
+                            val invoices = invoiceService.fetchPendingInvoices()
                             invoices.forEach { invoice ->
                                 it.json(billingService.chargeInvoice(invoice))
                             }

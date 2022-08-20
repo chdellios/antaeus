@@ -22,17 +22,26 @@ class InvoiceService(private val dal: AntaeusDal) {
         return dal.fetchInvoice(id) ?: throw InvoiceNotFoundException(id)
     }
 
-    fun charge(invoiceId: Int): Invoice {
+    fun fetchPendingInvoices(): List<Invoice> {
+        return dal.fetchPendingInvoices()
+    }
+
+    fun charge(invoiceId: Int, successfulCharge: (invoice: Invoice) -> Boolean): Invoice {
 
         val invoice = fetch(invoiceId)
         logger.info { "Fetched invoice with Id: ${invoice.id}" }
-        logger.info { "Payment provider charged successfully for invoice : $invoiceId" }
-        logger.info { "Updating invoice status to PAID" }
-        dal.updateInvoiceStatus(
-                invoice.id,
-                status = InvoiceStatus.PAID
-        )
+        val successful = successfulCharge(invoice)
+        if (successful) {
 
+            logger.info { "Payment provider charged successfully for invoice : $invoiceId" }
+            logger.info { "Updating invoice status to PAID" }
+            dal.updateInvoiceStatus(
+                    invoice.id,
+                    status = InvoiceStatus.PAID
+            )
+        } else {
+            logger.error { "Payment provider could not charge invoice : $invoiceId" }
+        }
         return fetch(invoiceId)
     }
 }
