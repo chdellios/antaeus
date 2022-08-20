@@ -2,16 +2,13 @@ package io.pleo.antaeus.core.services
 
 import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
 import io.pleo.antaeus.core.external.PaymentProvider
-import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.Invoice
-import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
-import java.util.*
 
 class BillingService(
-        private val dal: AntaeusDal,
         private val paymentProvider: PaymentProvider,
-        private val customerService: CustomerService
+        private val customerService: CustomerService,
+        private val invoiceService: InvoiceService
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -31,13 +28,7 @@ class BillingService(
                 throw CurrencyMismatchException(invoiceId = invoice.id, customerId = customer.id)
             }
 
-            logger.info { "Updating invoice status" }
-            dal.updateInvoiceStatus(
-                    invoice.id,
-                    status = InvoiceStatus.PAID
-            )
-            logger.info { "Payment successfully for $invoice at ${Date()}" }
-
+            invoiceService.charge(invoice.id)
             paymentProvider.charge(invoice)
 
         } catch (e: Exception) {
