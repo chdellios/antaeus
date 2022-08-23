@@ -17,31 +17,22 @@ class BillingService(
 
     private val logger = KotlinLogging.logger {}
 
-    fun chargeInvoice(invoice: Invoice): List<String> {
+    fun chargeInvoice(invoice: Invoice): Invoice {
 
-        val chargedInvoices: ArrayList<String> = arrayListOf()
-
-
-        try {
-            logger.info {
-                "Starting to charge Invoice with Id: ${invoice.id} for ${invoice.amount.value} ${invoice.amount.currency}"
-            }
-
-            val customer = customerService.fetch(invoice.customerId)
-            if (customer.currency != invoice.amount.currency) {
-                throw CurrencyMismatchException(invoiceId = invoice.id, customerId = customer.id)
-            }
-
-            chargedInvoices.add(invoiceService.charge(invoice.id) { existingInvoice ->
-                retry(2, false) {
-                    paymentProvider.charge(existingInvoice)
-                }
-            }.toString())
-
-        } catch (e: Exception) {
-            logger.error(e) { "Unexpected Error: Invoice Charge" }
+        logger.info {
+            "Starting to charge Invoice with Id: ${invoice.id} for ${invoice.amount.value} ${invoice.amount.currency}"
         }
-        return chargedInvoices
+
+        val customer = customerService.fetch(invoice.customerId)
+        if (customer.currency != invoice.amount.currency) {
+            throw CurrencyMismatchException(invoiceId = invoice.id, customerId = customer.id)
+        }
+
+        return invoiceService.charge(invoice.id) { existingInvoice ->
+            retry(2, false) {
+                paymentProvider.charge(existingInvoice)
+            }
+        }
     }
 }
 

@@ -11,6 +11,7 @@ import getPaymentProvider
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
+import io.pleo.antaeus.core.services.InvoicingOperator
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.data.CustomerTable
 import io.pleo.antaeus.data.InvoiceTable
@@ -32,20 +33,20 @@ fun main() {
     val dbFile: File = File.createTempFile("antaeus-db", ".sqlite")
     // Connect to the database and create the needed tables. Drop any existing data.
     val db = Database
-        .connect(url = "jdbc:sqlite:${dbFile.absolutePath}",
-            driver = "org.sqlite.JDBC",
-            user = "root",
-            password = "")
-        .also {
-            TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
-            transaction(it) {
-                addLogger(StdOutSqlLogger)
-                // Drop all existing tables to ensure a clean slate on each run
-                SchemaUtils.drop(*tables)
-                // Create all tables
-                SchemaUtils.create(*tables)
+            .connect(url = "jdbc:sqlite:${dbFile.absolutePath}",
+                    driver = "org.sqlite.JDBC",
+                    user = "root",
+                    password = "")
+            .also {
+                TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
+                transaction(it) {
+                    addLogger(StdOutSqlLogger)
+                    // Drop all existing tables to ensure a clean slate on each run
+                    SchemaUtils.drop(*tables)
+                    // Create all tables
+                    SchemaUtils.create(*tables)
+                }
             }
-        }
 
     // Set up data access layer.
     val dal = AntaeusDal(db = db)
@@ -62,12 +63,15 @@ fun main() {
 
     // This is _your_ billing service to be included where you see fit
     val billingService = BillingService(paymentProvider = paymentProvider, customerService = customerService,
-    invoiceService = invoiceService)
+            invoiceService = invoiceService)
+
+    // Create Invoicing operator to handle invoice charging
+    val invoicingOperator = InvoicingOperator(billingService, invoiceService)
 
     // Create REST web service
     AntaeusRest(
-        invoiceService = invoiceService,
-        customerService = customerService,
-        billingService = billingService
+            invoiceService = invoiceService,
+            customerService = customerService,
+            invoicingOperator = invoicingOperator
     ).run()
 }

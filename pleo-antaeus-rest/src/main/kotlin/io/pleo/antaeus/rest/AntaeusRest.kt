@@ -8,9 +8,9 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.pleo.antaeus.core.exceptions.EntityNotFoundException
-import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
+import io.pleo.antaeus.core.services.InvoicingOperator
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
@@ -18,7 +18,7 @@ private val logger = KotlinLogging.logger {}
 class AntaeusRest(
     private val invoiceService: InvoiceService,
     private val customerService: CustomerService,
-    private val billingService: BillingService
+    private val invoicingOperator: InvoicingOperator
 ) : Runnable {
 
     override fun run() {
@@ -71,10 +71,7 @@ class AntaeusRest(
                     path("charging") {
                         // URL: /rest/v1/charging
                         get {
-                            val invoices = invoiceService.fetchPendingInvoices()
-                            invoices.forEach { invoice ->
-                                it.json(billingService.chargeInvoice(invoice))
-                            }
+                            it.json(invoicingOperator.process())
                         }
                     }
 
