@@ -122,3 +122,11 @@ Happy hacking 😁!
 * Check if retry function works correctly on network failures
 * Implement proper testing.
 * Create dockerfile configuration and bash scripts to run a docker cron the first day of the month(may use docker-compose)
+
+## Tuesday 23rd August
+1. Changed Payment provider mock implementation in order to throw network and currency mismatch exceptions
+2. Unit testing implementation with minor refactoring.
+
+**Next Steps:**
+* Change billing service logic. Instead of Transaction rollback, i could update the invoice as FAILED in case something went wrong
+  (network or currency mismatch etc.)
