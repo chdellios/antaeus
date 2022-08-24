@@ -1,0 +1,3 @@
+00 12 1 * * exec /bin/bash -c ". /antaeus/cron/billing-cron-pending.sh"
+00 12 2 * * exec /bin/bash -c ". /antaeus/cron/billing-cron-failed.sh"
+#Empty line at the end of this file is required to run the cron job

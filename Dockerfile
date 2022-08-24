@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:latest
+FROM adoptopenjdk/openjdk11:latest as pleo-antaeus
 
 RUN apt-get update && \
     apt-get install -y sqlite3
