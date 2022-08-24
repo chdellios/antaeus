@@ -1,7 +1,3 @@
-/*
-    Implements endpoints related to invoices.
- */
-
 package io.pleo.antaeus.core.services
 
 import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
@@ -22,8 +18,8 @@ class InvoiceService(private val dal: AntaeusDal) {
         return dal.fetchInvoice(id) ?: throw InvoiceNotFoundException(id)
     }
 
-    fun fetchPendingInvoices(): List<Invoice> {
-        return dal.fetchPendingInvoices()
+    fun fetchInvoicesByStatus(invoiceStatus: String): List<Invoice> {
+        return dal.fetchInvoiceByStatus(invoiceStatus)
     }
 
     fun charge(invoiceId: Int, successfulCharge: (invoice: Invoice) -> Boolean): Invoice {
@@ -41,6 +37,11 @@ class InvoiceService(private val dal: AntaeusDal) {
             )
         } else {
             logger.error { "Payment provider could not charge invoice : $invoiceId" }
+            logger.info { "Updating invoice status to FAILED" }
+            dal.updateInvoiceStatus(
+                    invoice.id,
+                    status = InvoiceStatus.FAILED
+            )
         }
         return fetch(invoiceId)
     }

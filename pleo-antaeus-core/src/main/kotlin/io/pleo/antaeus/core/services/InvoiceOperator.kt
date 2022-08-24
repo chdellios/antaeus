@@ -1,6 +1,7 @@
 package io.pleo.antaeus.core.services
 
 import io.pleo.antaeus.models.Invoice
+import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
 
 class InvoicingOperator (
@@ -11,8 +12,19 @@ class InvoicingOperator (
 
     private val logger = KotlinLogging.logger {}
 
-    fun process() {
-        val invoices = invoiceService.fetchPendingInvoices()
+    fun chargeInvoices(invoiceStatus: String) {
+
+        var invoices = listOf<Invoice>()
+
+        if (invoiceStatus == InvoiceStatus.PENDING.toString()) {
+            logger.info { "Fetching $invoiceStatus invoices to charge" }
+            invoices = invoiceService.fetchInvoicesByStatus(InvoiceStatus.PENDING.toString())
+        } else if (invoiceStatus == InvoiceStatus.FAILED.toString()) {
+            logger.info { "Fetching $invoiceStatus invoices to charge" }
+            invoices = invoiceService.fetchInvoicesByStatus(InvoiceStatus.FAILED.toString())
+        }
+
+        logger.info { "${invoices.count()} invoices to charge ${invoices.map { it.id }}" }
         invoices.forEach {
             invoicingOperator(it)
         }

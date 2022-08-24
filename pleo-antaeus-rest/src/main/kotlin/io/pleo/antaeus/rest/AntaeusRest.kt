@@ -11,14 +11,15 @@ import io.pleo.antaeus.core.exceptions.EntityNotFoundException
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.InvoicingOperator
+import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
 class AntaeusRest(
-    private val invoiceService: InvoiceService,
-    private val customerService: CustomerService,
-    private val invoicingOperator: InvoicingOperator
+        private val invoiceService: InvoiceService,
+        private val customerService: CustomerService,
+        private val invoicingOperator: InvoicingOperator
 ) : Runnable {
 
     override fun run() {
@@ -27,19 +28,19 @@ class AntaeusRest(
 
     // Set up Javalin rest app
     private val app = Javalin
-        .create()
-        .apply {
-            // InvoiceNotFoundException: return 404 HTTP status code
-            exception(EntityNotFoundException::class.java) { _, ctx ->
-                ctx.status(404)
+            .create()
+            .apply {
+                // InvoiceNotFoundException: return 404 HTTP status code
+                exception(EntityNotFoundException::class.java) { _, ctx ->
+                    ctx.status(404)
+                }
+                // Unexpected exception: return HTTP 500
+                exception(Exception::class.java) { e, _ ->
+                    logger.error(e) { "Internal server error" }
+                }
+                // On 404: return message
+                error(404) { ctx -> ctx.json("not found") }
             }
-            // Unexpected exception: return HTTP 500
-            exception(Exception::class.java) { e, _ ->
-                logger.error(e) { "Internal server error" }
-            }
-            // On 404: return message
-            error(404) { ctx -> ctx.json("not found") }
-        }
 
     init {
         // Set up URL endpoints for the rest app
@@ -69,9 +70,21 @@ class AntaeusRest(
                     }
 
                     path("charging") {
-                        // URL: /rest/v1/charging
-                        get {
-                            it.json(invoicingOperator.process())
+                        path("pending") {
+                            // URL: /rest/v1/charging/pending
+                            get {
+
+                                it.json(invoicingOperator.chargeInvoices(InvoiceStatus.PENDING.toString()))
+
+                            }
+                        }
+                        path("failed") {
+                            // URL: /rest/v1/charging/failed
+                            get {
+
+                                it.json(invoicingOperator.chargeInvoices(InvoiceStatus.FAILED.toString()))
+
+                            }
                         }
                     }
 

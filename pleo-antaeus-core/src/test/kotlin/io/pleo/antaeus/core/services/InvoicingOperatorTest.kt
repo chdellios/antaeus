@@ -7,6 +7,7 @@ import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.data.CustomerTable
 import io.pleo.antaeus.data.InvoiceTable
 import io.pleo.antaeus.data.setupInitialData
+import io.pleo.antaeus.models.InvoiceStatus
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -54,15 +55,18 @@ class InvoicingOperatorTest {
     @Test
     fun `successful billing`() {
         val invoicingOperator = createInvoicingOperator(createPaymentProviderMock { true })
-        invoicingOperator.process()
-        Assertions.assertEquals(0, dal.fetchPendingInvoices().count())
+        invoicingOperator.chargeInvoices(InvoiceStatus.PENDING.toString())
+        invoicingOperator.chargeInvoices(InvoiceStatus.FAILED.toString())
+        Assertions.assertEquals(0, dal.fetchInvoiceByStatus(InvoiceStatus.PENDING.toString()).count()
+                + dal.fetchInvoiceByStatus(InvoiceStatus.FAILED.toString()).count())
     }
 
     @Test
     fun `billing failure`() {
         val invoicingOperator = createInvoicingOperator(createPaymentProviderMock { false })
-        invoicingOperator.process()
-        Assertions.assertEquals(100, dal.fetchPendingInvoices().count())
+        invoicingOperator.chargeInvoices(InvoiceStatus.PENDING.toString())
+        invoicingOperator.chargeInvoices(InvoiceStatus.FAILED.toString())
+        Assertions.assertEquals(100, dal.fetchInvoiceByStatus(InvoiceStatus.PENDING.toString()).count()
+                + dal.fetchInvoiceByStatus(InvoiceStatus.FAILED.toString()).count())
     }
-
 }
