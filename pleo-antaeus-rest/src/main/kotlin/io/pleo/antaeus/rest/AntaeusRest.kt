@@ -7,6 +7,8 @@ package io.pleo.antaeus.rest
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
+import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
+import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
 import io.pleo.antaeus.core.exceptions.EntityNotFoundException
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
@@ -34,12 +36,24 @@ class AntaeusRest(
                 exception(EntityNotFoundException::class.java) { _, ctx ->
                     ctx.status(404)
                 }
+                // CustomerNotFoundException: return 404 HTTP status code
+                exception(CustomerNotFoundException::class.java) { _, ctx ->
+                    ctx.status(404)
+                }
+                // CurrencyMismatchException: return 400 HTTP status code
+                exception(CurrencyMismatchException::class.java) { _, ctx ->
+                    ctx.status(400)
+                }
                 // Unexpected exception: return HTTP 500
                 exception(Exception::class.java) { e, _ ->
                     logger.error(e) { "Internal server error" }
                 }
                 // On 404: return message
                 error(404) { ctx -> ctx.json("not found") }
+                // On 400: return message
+                error(400) { ctx -> ctx.json("Bad Request: possible currency mismatch") }
+                // On 500: return message
+                error(500) { ctx -> ctx.json("Internal Server Error") }
             }
 
     init {
@@ -73,9 +87,7 @@ class AntaeusRest(
                         path("pending") {
                             // URL: /rest/v1/charging/pending
                             get {
-
                                 it.json(invoicingOperator.chargeInvoices(InvoiceStatus.PENDING.toString()))
-
                             }
                         }
                         path("failed") {
