@@ -13,7 +13,6 @@ class InvoicingOperator(
         private val invoiceService: InvoiceService
 ) {
 
-
     private val logger = KotlinLogging.logger {}
 
     fun chargeByStatus(invoiceStatus: String) = runBlocking {
@@ -47,7 +46,8 @@ class InvoicingOperator(
             billingService.chargeInvoice(invoice)
         } catch (e: Exception) {
             logger.error(e) { "Unexpected error during invoice charge" }
+            logger.info { "Updating invoice status to FAILED" }
+            invoiceService.updateInvoiceByStatus(invoice.id, InvoiceStatus.FAILED)
         }
     }
 }
-

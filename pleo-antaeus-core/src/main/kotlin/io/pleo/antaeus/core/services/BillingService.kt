@@ -19,9 +19,7 @@ class BillingService(
 
     fun chargeInvoice(invoice: Invoice): Invoice {
 
-        logger.info {
-            "Starting to charge Invoice with Id: ${invoice.id} for ${invoice.amount.value} ${invoice.amount.currency}"
-        }
+        logger.info { "Starting to charge Invoice with Id: ${invoice.id} for ${invoice.amount.value} ${invoice.amount.currency}" }
 
         val customer = customerService.fetch(invoice.customerId)
         if (customer.currency != invoice.amount.currency) {

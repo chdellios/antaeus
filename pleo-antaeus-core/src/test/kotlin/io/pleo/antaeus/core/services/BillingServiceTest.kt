@@ -1,6 +1,5 @@
 package io.pleo.antaeus.core.services
 
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -105,7 +104,7 @@ class BillingServiceTest {
         val billingService = createBillingService(
                 invoice = currencyMismatch,
                 fetchCustomerMock = {
-                    coEvery { fetch(it.customerId) } returns Customer(it.customerId, Currency.EUR)
+                    every { fetch(it.customerId) } returns Customer(it.customerId, Currency.EUR)
                 }
         )
         assertThrows<CurrencyMismatchException> {
@@ -119,7 +118,7 @@ class BillingServiceTest {
         val billingService = createBillingService(
                 invoice = networkException,
                 chargeInvoiceMock = {
-                    coEvery { charge(it) } throws NetworkException()
+                    every { charge(it) } throws NetworkException()
                 }
         )
         assertThrows<NetworkException> {

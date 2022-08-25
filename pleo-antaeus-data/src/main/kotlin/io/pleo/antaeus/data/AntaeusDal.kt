@@ -45,7 +45,6 @@ class AntaeusDal(private val db: Database) {
 
         return fetchInvoice(id)
     }
-
     fun fetchInvoiceByStatus(invoiceStatus: String): List<Invoice> {
         return transaction(db) {
             InvoiceTable

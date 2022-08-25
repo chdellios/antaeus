@@ -1,5 +1,5 @@
-
 import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
+import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
 import io.pleo.antaeus.core.exceptions.NetworkException
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.data.AntaeusDal
@@ -14,19 +14,19 @@ import kotlin.random.Random
 internal fun setupInitialData(dal: AntaeusDal) {
     val customers = (1..100).mapNotNull {
         dal.createCustomer(
-            currency = Currency.values()[Random.nextInt(0, Currency.values().size)]
+                currency = Currency.values()[Random.nextInt(0, Currency.values().size)]
         )
     }
 
     customers.forEach { customer ->
         (1..10).forEach {
             dal.createInvoice(
-                amount = Money(
-                    value = BigDecimal(Random.nextDouble(10.0, 500.0)),
-                    currency = customer.currency
-                ),
-                customer = customer,
-                status = if (it == 1) InvoiceStatus.PENDING else InvoiceStatus.PAID
+                    amount = Money(
+                            value = BigDecimal(Random.nextDouble(10.0, 500.0)),
+                            currency = customer.currency
+                    ),
+                    customer = customer,
+                    status = if (it == 1) InvoiceStatus.PENDING else InvoiceStatus.PAID
             )
         }
     }
@@ -36,13 +36,12 @@ internal fun setupInitialData(dal: AntaeusDal) {
 internal fun getPaymentProvider(): PaymentProvider {
     return object : PaymentProvider {
         override fun charge(invoice: Invoice): Boolean {
-            if (Random.nextInt(100) < 5) {
-                throw NetworkException()
+            return when {
+                Random.nextInt(5) == 0 -> throw NetworkException()
+                Random.nextInt(5) == 1 -> throw CurrencyMismatchException(invoiceId = invoice.id, customerId = invoice.customerId)
+                Random.nextInt(5) == 2 -> throw CustomerNotFoundException(id = invoice.customerId)
+                else -> Random.nextBoolean()
             }
-            if (Random.nextInt(100) < 5) {
-                throw CurrencyMismatchException(invoiceId = invoice.id, customerId = invoice.customerId)
-            }
-            return Random.nextBoolean()
         }
     }
 }

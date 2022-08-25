@@ -21,6 +21,9 @@ class InvoiceService(private val dal: AntaeusDal) {
     fun fetchInvoicesByStatus(invoiceStatus: String): List<Invoice> {
         return dal.fetchInvoiceByStatus(invoiceStatus)
     }
+    fun updateInvoiceByStatus(id: Int, invoiceStatus: InvoiceStatus): Int {
+        return dal.updateInvoiceStatus(id, invoiceStatus)
+    }
 
     fun charge(invoiceId: Int, successfulCharge: (invoice: Invoice) -> Boolean): Invoice {
 
@@ -31,17 +34,11 @@ class InvoiceService(private val dal: AntaeusDal) {
 
             logger.info { "Payment provider charged successfully for invoice : $invoiceId" }
             logger.info { "Updating invoice status to PAID" }
-            dal.updateInvoiceStatus(
-                    invoice.id,
-                    status = InvoiceStatus.PAID
-            )
+            updateInvoiceByStatus(invoice.id, InvoiceStatus.PAID)
         } else {
             logger.error { "Payment provider could not charge invoice : $invoiceId" }
             logger.info { "Updating invoice status to FAILED" }
-            dal.updateInvoiceStatus(
-                    invoice.id,
-                    status = InvoiceStatus.FAILED
-            )
+            updateInvoiceByStatus(invoice.id, InvoiceStatus.FAILED)
         }
         return fetch(invoiceId)
     }
