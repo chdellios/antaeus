@@ -13,7 +13,7 @@ test -f $log || touch $log
   echo "----------------------------------------------------"
 } >> $log
 
-result=$(curl -s http://antaeus:7000/rest/v1/charing/failed)
+result=$(curl -s http://antaeus:7000/rest/v1/charging/failed)
 
 if [[ $result == "[]" ]]; then
   echo "No more invoices left for payment" >> $log

@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+
+  cronjob:
+    container_name: cronjob
+    build:
+      context: ./cron
+      target: cronjob
+    command: ["cron", "-f"]
+
+  anteus:
+    container_name: antaeus
+    build:
+      context: .
+      target: pleo-antaeus
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./pleo-antaeus-build-cache:/root/.gradle \pleo-antaeus
