@@ -113,9 +113,9 @@ Happy hacking 😁!
 ## Saturday 20th August
 1. Better implementation of Billing service.
 * Fetching and charging only pending invoices.
-* Failure stimulation
+* Failure stimulation.
 
-2. Changed API paths for the billing process in order to fetch only the pending invoices
+2. Changed API paths for the billing process in order to fetch only the pending invoices.
 * each call is idempotent, meaning no invoice is going to be charged twice.
 
 **Next Steps:**
@@ -128,5 +128,15 @@ Happy hacking 😁!
 2. Unit testing implementation with minor refactoring.
 
 **Next Steps:**
-* Change billing service logic. Instead of Transaction rollback, i could update the invoice as FAILED in case something went wrong
+* Change billing service logic. Instead of Transaction rollback, I could update the invoice as FAILED in case something went wrong
   (network or currency mismatch etc.)
+
+## Thursday 25 August
+1. Implementation of different invoice processing for FAILED invoices.
+2. Creation of cron job for two cases. The app is executed every first day of each month.
+   Another execution is made on the second day each month, charging FAILED invoices.
+3. Experimenting with flows.
+
+**Next Steps:**
+1. Will try to implement authorization as a POC, since the app uses a third party provider or if we are going to use it with an external service
+2. Create a currency converter.
