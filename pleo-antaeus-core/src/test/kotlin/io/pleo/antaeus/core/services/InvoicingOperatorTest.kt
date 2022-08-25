@@ -55,8 +55,8 @@ class InvoicingOperatorTest {
     @Test
     fun `successful billing`() {
         val invoicingOperator = createInvoicingOperator(createPaymentProviderMock { true })
-        invoicingOperator.chargeInvoices(InvoiceStatus.PENDING.toString())
-        invoicingOperator.chargeInvoices(InvoiceStatus.FAILED.toString())
+        invoicingOperator.chargeByStatus(InvoiceStatus.PENDING.toString())
+        invoicingOperator.chargeByStatus(InvoiceStatus.FAILED.toString())
         Assertions.assertEquals(0, dal.fetchInvoiceByStatus(InvoiceStatus.PENDING.toString()).count()
                 + dal.fetchInvoiceByStatus(InvoiceStatus.FAILED.toString()).count())
     }
@@ -64,8 +64,8 @@ class InvoicingOperatorTest {
     @Test
     fun `billing failure`() {
         val invoicingOperator = createInvoicingOperator(createPaymentProviderMock { false })
-        invoicingOperator.chargeInvoices(InvoiceStatus.PENDING.toString())
-        invoicingOperator.chargeInvoices(InvoiceStatus.FAILED.toString())
+        invoicingOperator.chargeByStatus(InvoiceStatus.PENDING.toString())
+        invoicingOperator.chargeByStatus(InvoiceStatus.FAILED.toString())
         Assertions.assertEquals(100, dal.fetchInvoiceByStatus(InvoiceStatus.PENDING.toString()).count()
                 + dal.fetchInvoiceByStatus(InvoiceStatus.FAILED.toString()).count())
     }

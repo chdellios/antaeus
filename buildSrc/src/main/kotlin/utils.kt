@@ -4,6 +4,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 
 const val junitVersion = "5.6.0"
+const val coroutinesVersion = "1.3.5"
 const val h2Version = "1.4.199"
 
 
@@ -14,6 +15,7 @@ fun Project.kotlinProject() {
     dependencies {
         // Kotlin libs
         "implementation"(kotlin("stdlib"))
+        "implementation"("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
         // Logging
         "implementation"("org.slf4j:slf4j-simple:1.7.30")

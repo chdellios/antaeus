@@ -2,9 +2,13 @@ package io.pleo.antaeus.core.services
 
 import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.InvoiceStatus
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 
-class InvoicingOperator (
+
+class InvoicingOperator(
         private val billingService: BillingService,
         private val invoiceService: InvoiceService
 ) {
@@ -12,7 +16,14 @@ class InvoicingOperator (
 
     private val logger = KotlinLogging.logger {}
 
-    fun chargeInvoices(invoiceStatus: String) {
+    fun chargeByStatus(invoiceStatus: String) = runBlocking {
+        val invoices = getInvoices(invoiceStatus)
+        invoices.collect { invoice ->
+            invoicingOperator(invoice)
+        }
+    }
+
+    private fun getInvoices(invoiceStatus: String) = flow {
 
         var invoices = listOf<Invoice>()
 
@@ -26,17 +37,17 @@ class InvoicingOperator (
 
         logger.info { "${invoices.count()} invoices to charge ${invoices.map { it.id }}" }
         invoices.forEach {
-            invoicingOperator(it)
+            logger.info { "Emitted invoices: $it " }
+            emit(it)
         }
-
     }
 
-    private fun invoicingOperator(invoice: Invoice) {
+    private fun invoicingOperator(invoice: Invoice) = runBlocking {
         try {
             billingService.chargeInvoice(invoice)
         } catch (e: Exception) {
             logger.error(e) { "Unexpected error during invoice charge" }
         }
-
     }
 }
+

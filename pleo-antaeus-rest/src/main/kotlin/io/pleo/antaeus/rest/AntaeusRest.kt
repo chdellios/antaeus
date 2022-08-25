@@ -14,6 +14,7 @@ import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.InvoicingOperator
 import io.pleo.antaeus.models.InvoiceStatus
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
@@ -86,16 +87,20 @@ class AntaeusRest(
                     path("charging") {
                         path("pending") {
                             // URL: /rest/v1/charging/pending
-                            get {
-                                it.json(invoicingOperator.chargeInvoices(InvoiceStatus.PENDING.toString()))
+                            runBlocking {
+                                get {
+                                    it.json(invoicingOperator.chargeByStatus(InvoiceStatus.PENDING.toString()))
+                                }
                             }
                         }
                         path("failed") {
                             // URL: /rest/v1/charging/failed
-                            get {
+                            runBlocking {
+                                get {
 
-                                it.json(invoicingOperator.chargeInvoices(InvoiceStatus.FAILED.toString()))
+                                    it.json(invoicingOperator.chargeByStatus(InvoiceStatus.FAILED.toString()))
 
+                                }
                             }
                         }
                     }
