@@ -45,6 +45,7 @@ class AntaeusDal(private val db: Database) {
 
         return fetchInvoice(id)
     }
+
     fun fetchInvoiceByStatus(invoiceStatus: String): List<Invoice> {
         return transaction(db) {
             InvoiceTable
@@ -61,7 +62,6 @@ class AntaeusDal(private val db: Database) {
                     }
         }
     }
-
 
     fun fetchCustomer(id: Int): Customer? {
         return transaction(db) {
@@ -80,7 +80,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun convertCustomerCurrency(id: Int, amount: Money) : Int{
+    fun convertCustomerCurrency(id: Int, amount: Money): Int {
         return transaction(db) {
             InvoiceTable
                     .update({ InvoiceTable.customerId eq id }) {

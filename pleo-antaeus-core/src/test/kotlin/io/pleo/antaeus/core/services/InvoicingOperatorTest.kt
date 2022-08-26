@@ -19,7 +19,8 @@ import org.junit.jupiter.api.Test
 
 class InvoicingOperatorTest {
     private val tables = arrayOf(InvoiceTable, CustomerTable)
-    private val db =  Database.connect("jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1;", "org.h2.Driver", "root", "")
+    private val db = Database.connect("jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1;",
+            "org.h2.Driver", "root", "")
 
     private val dal = AntaeusDal(db = db)
     private val invoiceService = InvoiceService(dal = dal)
@@ -36,7 +37,6 @@ class InvoicingOperatorTest {
         }
     }
 
-
     @BeforeEach
     fun before() {
         transaction(db) {
@@ -50,7 +50,6 @@ class InvoicingOperatorTest {
         }
 
     }
-
 
     @Test
     fun `successful billing`() {

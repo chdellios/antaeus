@@ -24,7 +24,7 @@ class InvoiceServiceTest {
     }
 
     @Test
-    fun `will return all invoices`()  {
+    fun `will return all invoices`() {
         Assertions.assertEquals(invoiceService.fetchAll().size, 11)
     }
 }

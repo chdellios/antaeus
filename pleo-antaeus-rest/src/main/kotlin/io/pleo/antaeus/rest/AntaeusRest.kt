@@ -31,7 +31,7 @@ class AntaeusRest(
 
     // Set up Javalin rest app
     private val app = Javalin
-            .create(){
+            .create() {
                 it.accessManager(Auth::accessManager)
             }
             .apply {
@@ -77,7 +77,8 @@ class AntaeusRest(
                     path("invoices") {
                         // URL: /rest/v1/invoices
                         get({
-                            it.json(invoiceService.fetchAll())}, Role.USER_READ
+                            it.json(invoiceService.fetchAll())
+                        }, Role.USER_READ
                         )
                         get("{id}", {
                             it.json(invoiceService.fetch(it.pathParam("id").toInt()))
@@ -88,7 +89,7 @@ class AntaeusRest(
                         path("pending") {
                             // URL: /rest/v1/charging/pending
                             runBlocking {
-                                get ( {
+                                get({
                                     it.json(invoicingOperator.chargeByStatus(InvoiceStatus.PENDING.toString()))
                                 }, Role.USER_WRITE)
                             }
@@ -96,7 +97,7 @@ class AntaeusRest(
                         path("failed") {
                             // URL: /rest/v1/charging/failed
                             runBlocking {
-                                get ( {
+                                get({
                                     it.json(invoicingOperator.chargeByStatus(InvoiceStatus.FAILED.toString()))
                                 }, Role.USER_WRITE)
                             }
@@ -105,7 +106,7 @@ class AntaeusRest(
 
                     path("customers") {
                         // URL: /rest/v1/customers
-                        get( {
+                        get({
                             it.json(customerService.fetchAll())
                         }, Role.USER_READ)
 

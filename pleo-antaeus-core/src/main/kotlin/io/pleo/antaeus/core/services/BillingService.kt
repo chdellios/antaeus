@@ -23,7 +23,10 @@ class BillingService(
 
     fun chargeInvoice(invoice: Invoice): Invoice {
 
-        logger.info { "Starting to charge Invoice with Id: ${invoice.id} for ${invoice.amount.value} ${invoice.amount.currency}" }
+        logger.info {
+            "Starting to charge Invoice with Id: ${invoice.id}" +
+                    " for ${invoice.amount.value} ${invoice.amount.currency}"
+        }
 
         val customer = customerService.fetch(invoice.customerId)
         //As a poc I am testing moneta API in order
