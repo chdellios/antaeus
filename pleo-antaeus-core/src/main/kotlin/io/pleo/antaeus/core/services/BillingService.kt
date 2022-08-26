@@ -5,11 +5,10 @@ import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.Money
 import mu.KotlinLogging
+import org.javamoney.moneta.convert.ecb.ECBHistoricRateProvider
 import java.math.BigDecimal
-import javax.money.Monetary
-import javax.money.MonetaryAmount
-import javax.money.convert.CurrencyConversion
-import javax.money.convert.MonetaryConversions
+import javax.money.convert.ConversionQueryBuilder
+import javax.money.convert.ExchangeRateProvider
 
 
 private val logger = KotlinLogging.logger {}
@@ -19,10 +18,6 @@ class BillingService(
         private val customerService: CustomerService,
         private val invoiceService: InvoiceService
 ) {
-
-    private fun String.substring(convertedAmount: MonetaryAmount): Double {
-        return convertedAmount.toString().indexOf(" ") + 1.toDouble()
-    }
 
     private val logger = KotlinLogging.logger {}
 
@@ -35,18 +30,13 @@ class BillingService(
         //to get the currency exchange rate based on Europe Central Bank
         //and create a converter
         if (customer.currency != invoice.amount.currency) {
-            val invoiceCurrency: MonetaryAmount =
-                    Monetary.getDefaultAmountFactory().setCurrency(invoice.amount.currency.toString())
-                            .setNumber(1).create()
-            val conversion: CurrencyConversion = MonetaryConversions.getConversion(customer.currency.toString())
-            val convertedAmount: MonetaryAmount = invoiceCurrency.with(conversion)
-            val amountToCharge = invoice.amount.value.multiply(
-                    BigDecimal.valueOf(
-                            convertedAmount.toString()
-                                    .substring(convertedAmount)
-                    )
-            )
-            customerService.convertCurrency(customer.id, Money(amountToCharge, invoice.amount.currency))
+
+            val ecb: ExchangeRateProvider = ECBHistoricRateProvider()
+            val exr = ecb.getExchangeRate(ConversionQueryBuilder.of().setBaseCurrency(invoice.amount.currency.toString())
+                    .setTermCurrency(customer.currency.toString()).build())
+            val amountToCharge = BigDecimal.valueOf(exr.factor.toDouble()).multiply(invoice.amount.value)
+
+            customerService.convertCurrency(customer.id, Money(amountToCharge.setScale(2), customer.currency))
         }
 
         return invoiceService.charge(invoice.id) { existingInvoice ->

@@ -10,7 +10,10 @@ import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.data.CustomerTable
 import io.pleo.antaeus.data.InvoiceTable
 import io.pleo.antaeus.data.setupInitialData
-import io.pleo.antaeus.models.*
+import io.pleo.antaeus.models.Customer
+import io.pleo.antaeus.models.Invoice
+import io.pleo.antaeus.models.InvoiceStatus
+import org.javamoney.moneta.convert.ecb.ECBHistoricRateProvider
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -21,9 +24,11 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.sql.Connection
-import javax.money.Monetary
-import javax.money.convert.MonetaryConversions
+import javax.money.convert.ConversionQueryBuilder
+import javax.money.convert.ExchangeRateProvider
 
 val customerNotFound = createInvoice(
         id = 1,
@@ -121,13 +126,13 @@ class BillingServiceTest {
     }
 
     @Test
-    internal fun `correct conversion`() {
-        val oneEuro = Monetary.getDefaultAmountFactory().setCurrency("EUR")
-                .setNumber(1).create()
-        val conversionDKK = MonetaryConversions.getConversion("DKK")
-        val convertedAmountDKKtoEUR = oneEuro.with(conversionDKK)
-        Assertions.assertEquals("USD 1.00", oneEuro.toString())
-        Assertions.assertNotNull(convertedAmountDKKtoEUR)
+    internal fun `currency conversion when currency missmatch`() {
+        val ecb: ExchangeRateProvider = ECBHistoricRateProvider()
+        val exr = ecb.getExchangeRate(ConversionQueryBuilder.of().setBaseCurrency("DKK").setTermCurrency("EUR").build())
+        val dkk = 20.0
+        val euroToDkk = BigDecimal.valueOf(exr.factor.toDouble()).multiply(BigDecimal.valueOf(dkk))
+        Assertions.assertEquals("EUR 2.68", "EUR ${euroToDkk.setScale(2, RoundingMode.FLOOR)}")
+        Assertions.assertNotNull(euroToDkk)
     }
 
     private fun assertChargingInvoice(invoice: Invoice, invoiceStatus: String) {
