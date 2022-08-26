@@ -3,7 +3,6 @@ package io.pleo.antaeus.core.services
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
-import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
 import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
 import io.pleo.antaeus.core.exceptions.NetworkException
 import io.pleo.antaeus.core.external.PaymentProvider
@@ -23,17 +22,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.sql.Connection
+import javax.money.Monetary
+import javax.money.convert.MonetaryConversions
 
 val customerNotFound = createInvoice(
         id = 1,
         customerId = 1,
         status = InvoiceStatus.PENDING
-)
-val currencyMismatch = createInvoice(
-        id = 11,
-        customerId = 2,
-        status = InvoiceStatus.PENDING,
-        amount = Money((10).toBigDecimal(), Currency.GBP)
 )
 val networkException = createInvoice(
         id = 21,
@@ -100,20 +95,6 @@ class BillingServiceTest {
     }
 
     @Test
-    internal fun `currency mismatch`() {
-        val billingService = createBillingService(
-                invoice = currencyMismatch,
-                fetchCustomerMock = {
-                    every { fetch(it.customerId) } returns Customer(it.customerId, Currency.EUR)
-                }
-        )
-        assertThrows<CurrencyMismatchException> {
-            billingService.chargeInvoice(currencyMismatch)
-        }
-        assertChargingInvoice(currencyMismatch, invoiceStatus = "PENDING")
-    }
-
-    @Test
     internal fun `network exception error`() {
         val billingService = createBillingService(
                 invoice = networkException,
@@ -137,6 +118,16 @@ class BillingServiceTest {
         )
         billingService.chargeInvoice(chargedSuccess)
         assertChargingInvoice(chargedSuccess, invoiceStatus = "PAID")
+    }
+
+    @Test
+    internal fun `correct conversion`() {
+        val oneEuro = Monetary.getDefaultAmountFactory().setCurrency("EUR")
+                .setNumber(1).create()
+        val conversionDKK = MonetaryConversions.getConversion("DKK")
+        val convertedAmountDKKtoEUR = oneEuro.with(conversionDKK)
+        Assertions.assertEquals("USD 1.00", oneEuro.toString())
+        Assertions.assertNotNull(convertedAmountDKKtoEUR)
     }
 
     private fun assertChargingInvoice(invoice: Invoice, invoiceStatus: String) {
