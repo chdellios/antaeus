@@ -13,7 +13,7 @@ test -f $log || touch $log
   echo "----------------------------------------------------"
 } >> $log
 
-result=$(curl -s http://antaeus:7000/rest/v1/charging/pending)
+result=$(curl -s http://antaeus:7000/rest/v1/charging/pending -u "pleo-admin:pleo-admin")
 
 if [[ $result == "[]" ]]; then
   echo "No more invoices left for payment" >> $log
