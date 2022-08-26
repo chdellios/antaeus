@@ -31,7 +31,9 @@ class AntaeusRest(
 
     // Set up Javalin rest app
     private val app = Javalin
-            .create()
+            .create(){
+                it.accessManager(Auth::accessManager)
+            }
             .apply {
                 // InvoiceNotFoundException: return 404 HTTP status code
                 exception(EntityNotFoundException::class.java) { _, ctx ->
@@ -66,55 +68,51 @@ class AntaeusRest(
             path("rest") {
                 // Route to check whether the app is running
                 // URL: /rest/health
-                get("health") {
+                get("/health", {
                     it.json("ok")
-                }
+                }, Role.ANYONE)
 
                 // V1
                 path("v1") {
                     path("invoices") {
                         // URL: /rest/v1/invoices
-                        get {
-                            it.json(invoiceService.fetchAll())
-                        }
-
-                        // URL: /rest/v1/invoices/{:id}
-                        get(":id") {
+                        get({
+                            it.json(invoiceService.fetchAll())}, Role.USER_READ
+                        )
+                        get("{id}", {
                             it.json(invoiceService.fetch(it.pathParam("id").toInt()))
-                        }
+                        }, Role.USER_READ)
                     }
 
                     path("charging") {
                         path("pending") {
                             // URL: /rest/v1/charging/pending
                             runBlocking {
-                                get {
+                                get ( {
                                     it.json(invoicingOperator.chargeByStatus(InvoiceStatus.PENDING.toString()))
-                                }
+                                }, Role.USER_WRITE)
                             }
                         }
                         path("failed") {
                             // URL: /rest/v1/charging/failed
                             runBlocking {
-                                get {
-
+                                get ( {
                                     it.json(invoicingOperator.chargeByStatus(InvoiceStatus.FAILED.toString()))
-
-                                }
+                                }, Role.USER_WRITE)
                             }
                         }
                     }
 
                     path("customers") {
                         // URL: /rest/v1/customers
-                        get {
+                        get( {
                             it.json(customerService.fetchAll())
-                        }
+                        }, Role.USER_READ)
 
                         // URL: /rest/v1/customers/{:id}
-                        get(":id") {
+                        get("{id}", {
                             it.json(customerService.fetch(it.pathParam("id").toInt()))
-                        }
+                        }, Role.USER_READ)
                     }
                 }
             }
