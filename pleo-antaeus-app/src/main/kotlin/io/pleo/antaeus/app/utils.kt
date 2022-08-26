@@ -38,7 +38,10 @@ internal fun getPaymentProvider(): PaymentProvider {
         override fun charge(invoice: Invoice): Boolean {
             return when {
                 Random.nextInt(5) == 0 -> throw NetworkException()
-                Random.nextInt(5) == 1 -> throw CurrencyMismatchException(invoiceId = invoice.id, customerId = invoice.customerId)
+                Random.nextInt(5) == 1 -> throw CurrencyMismatchException(
+                        invoiceId = invoice.id,
+                        customerId = invoice.customerId
+                )
                 Random.nextInt(5) == 2 -> throw CustomerNotFoundException(id = invoice.customerId)
                 else -> Random.nextBoolean()
             }
