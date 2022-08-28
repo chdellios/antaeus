@@ -13,7 +13,7 @@ class InvoiceServiceTest {
     private val dal = mockk<AntaeusDal> {
         every { fetchInvoice(404) } returns null
         every { fetchInvoices() } returns (0..10).map { createInvoice() }
-        every { fetchInvoice(12) } returns createOneInvoice()
+        every { fetchInvoice(12) } returns createSingleInvoice()
         every { fetchInvoiceByStatus(InvoiceStatus.PENDING.toString()) } returns (13..15).map { createPendingInvoice() }
         every { fetchInvoiceByStatus(InvoiceStatus.FAILED.toString()) } returns (16..20).map { createFailedInvoice() }
 
@@ -34,20 +34,20 @@ class InvoiceServiceTest {
     }
 
     @Test
-    fun `will return one invoice`() {
+    fun `will return single invoice`() {
         val invoice = invoiceService.fetch(12)
         Assertions.assertEquals(invoice.id, 12)
     }
 
     @Test
     fun `will return pending invoices`() {
-        val invoice = invoiceService.fetchInvoicesByStatus(InvoiceStatus.PENDING.toString())
-        Assertions.assertEquals(invoice.size, 3)
+        val invoices = invoiceService.fetchInvoicesByStatus(InvoiceStatus.PENDING.toString())
+        Assertions.assertEquals(invoices.size, 3)
     }
 
     @Test
     fun `will return failed invoices`() {
-        val invoice = invoiceService.fetchInvoicesByStatus(InvoiceStatus.FAILED.toString())
-        Assertions.assertEquals(invoice.size, 5)
+        val invoices = invoiceService.fetchInvoicesByStatus(InvoiceStatus.FAILED.toString())
+        Assertions.assertEquals(invoices.size, 5)
     }
 }

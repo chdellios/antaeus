@@ -163,8 +163,8 @@ Happy hacking 😁!
 ## How to run the challenge.
 1. Running `./docker-start.sh` will execute a `docker-compose up` that will start all the needed services.
 2. Once the services are up and running, the `cronjob` will execute the jobs as explained above. If we want to test the app without having to wait, we can send a request to the api using the following commands:
-   `curl -s http://localhost:7000/rest/v1/charging/pending -u "pleo-admin:pleo-admin")` (for fetching and charging the pending invoices) and `curl -s http://localhost:7000/rest/v1/charging/failed -u "pleo-admin:pleo-admin")` (for fetching and charging the failed invoices).
-  Note that `-u "pleo-admin:pleo-admin"` is the username and password that has the authorization to write, since we used basic auth. In any other case we can use the user pleo-user.
+   `curl -s http://localhost:7000/rest/v1/charging/pending -u "pleo-admin:pleo-admin"` (for fetching and charging the pending invoices) and `curl -s http://localhost:7000/rest/v1/charging/failed -u "pleo-admin:pleo-admin"` (for fetching and charging the failed invoices).
+  Note that `-u "pleo-admin:pleo-admin"` is the username and password that has the authorization to write, since we used basic auth. In any other case we can use the user pleo-user:pleo-user.
 
 
 ##  Business logic ideas

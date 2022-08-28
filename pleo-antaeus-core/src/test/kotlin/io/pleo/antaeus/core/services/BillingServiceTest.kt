@@ -129,7 +129,8 @@ class BillingServiceTest {
     @Test
     internal fun `currency conversion when currency mismatch`() {
         val ecb: ExchangeRateProvider = ECBHistoricRateProvider()
-        val exr = ecb.getExchangeRate(ConversionQueryBuilder.of().setBaseCurrency("DKK").setTermCurrency("EUR").build())
+        val exr = ecb.getExchangeRate(ConversionQueryBuilder.of()
+                .setBaseCurrency("DKK").setTermCurrency("EUR").build())
         val dkk = 20.0
         val euroToDkk = BigDecimal.valueOf(exr.factor.toDouble()).multiply(BigDecimal.valueOf(dkk))
         Assertions.assertEquals("EUR 2.68", "EUR ${euroToDkk.setScale(2, RoundingMode.FLOOR)}")

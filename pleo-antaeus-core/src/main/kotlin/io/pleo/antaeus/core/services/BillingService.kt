@@ -35,7 +35,8 @@ class BillingService(
         if (customer.currency != invoice.amount.currency) {
 
             val ecb: ExchangeRateProvider = ECBHistoricRateProvider()
-            val exr = ecb.getExchangeRate(ConversionQueryBuilder.of().setBaseCurrency(invoice.amount.currency.toString())
+            val exr = ecb.getExchangeRate(ConversionQueryBuilder.of()
+                    .setBaseCurrency(invoice.amount.currency.toString())
                     .setTermCurrency(customer.currency.toString()).build())
             val amountToCharge = BigDecimal.valueOf(exr.factor.toDouble()).multiply(invoice.amount.value)
 

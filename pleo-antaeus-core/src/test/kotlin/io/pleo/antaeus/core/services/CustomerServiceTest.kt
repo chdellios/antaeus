@@ -12,7 +12,7 @@ class CustomerServiceTest {
     private val dal = mockk<AntaeusDal> {
         every { fetchCustomer(404) } returns null
         every { fetchCustomers() } returns (0..10).map { createCustomer() }
-        every { fetchCustomer(12) } returns  createCustomer()
+        every { fetchCustomer(12) } returns  createSingleCustomer()
     }
 
     private val customerService = CustomerService(dal = dal)
@@ -30,7 +30,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    fun `will return the correct customer`() {
+    fun `will return a single customer`() {
         val customer = customerService.fetch(12)
         Assertions.assertEquals(customer.id, 12)
     }

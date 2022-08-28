@@ -23,7 +23,7 @@ fun createInvoice(
         status: InvoiceStatus = randomStatus()
 ) = Invoice(id, customerId, amount, status)
 
-fun createOneInvoice(
+fun createSingleInvoice(
         id: Int = 12,
         customerId: Int = 1,
         amount: Money = Money(
@@ -55,5 +55,10 @@ fun createFailedInvoice(
 
 fun createCustomer(
         id: Int = nextId(),
+        currency: Currency = randomCurrency()
+) = Customer(id, currency)
+
+fun createSingleCustomer(
+        id: Int = 12,
         currency: Currency = randomCurrency()
 ) = Customer(id, currency)
