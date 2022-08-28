@@ -80,7 +80,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun convertCustomerCurrency(id: Int, amount: Money): Int {
+    fun updateCustomerCurrency(id: Int, amount: Money): Int {
         return transaction(db) {
             InvoiceTable
                     .update({ InvoiceTable.customerId eq id }) {

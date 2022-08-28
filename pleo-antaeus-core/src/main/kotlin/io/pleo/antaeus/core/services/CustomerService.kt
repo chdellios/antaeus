@@ -18,7 +18,7 @@ class CustomerService(private val dal: AntaeusDal) {
         return dal.fetchCustomer(id) ?: throw CustomerNotFoundException(id)
     }
 
-    fun convertCurrency(id: Int, amount: Money): Int {
-        return dal.convertCustomerCurrency(id, amount)
+    fun updateCurrency(id: Int, amount: Money): Int {
+        return dal.updateCustomerCurrency(id, amount)
     }
 }

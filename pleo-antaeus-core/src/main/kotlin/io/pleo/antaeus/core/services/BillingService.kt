@@ -39,7 +39,7 @@ class BillingService(
                     .setTermCurrency(customer.currency.toString()).build())
             val amountToCharge = BigDecimal.valueOf(exr.factor.toDouble()).multiply(invoice.amount.value)
 
-            customerService.convertCurrency(customer.id, Money(amountToCharge.setScale(2), customer.currency))
+            customerService.updateCurrency(customer.id, Money(amountToCharge.setScale(2), customer.currency))
         }
 
         return invoiceService.charge(invoice.id) { existingInvoice ->
